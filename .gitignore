@@ -1,0 +1,6 @@
+# Raw media and archives stay local; only compressed web assets are committed
+*.zip
+*.mov
+*.pptx
+*.gb
+*.gbc

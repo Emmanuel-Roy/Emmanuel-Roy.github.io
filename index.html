@@ -1,29 +1,371 @@
-
-<html>
-<!-- Text between angle brackets is an HTML tag and is not displayed.
-Most tags, such as the HTML and /HTML tags that surround the contents of
-a page, come in pairs; some tags, like HR, for a horizontal rule, stand 
-alone. Comments, such as the text you're reading, are not displayed when
-the Web page is shown. The information between the HEAD and /HEAD tags is 
-not displayed. The information between the BODY and /BODY tags is displayed.-->
+<!doctype html>
+<html lang="en">
 <head>
-<title>Enter a title, displayed at the top of the window.</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emmanuel Roy</title>
+<meta name="description" content="Emmanuel Roy is an electrical and computer engineer who takes complex systems apart to understand them: CPU simulators at AMD, F-35 software at Lockheed Martin, EEG research, emulators and hardware.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* palette */
+    --paper: #FFFFFF;
+    --ink: #190B28;
+    --plum: #5B2E48;
+    --lav: #AE96BC;
+    --mint: #D0FFC3;
+    /* derived */
+    --muted: color-mix(in srgb, var(--ink) 70%, var(--paper));
+    --line: color-mix(in srgb, var(--lav) 55%, var(--paper));
+    --grid: color-mix(in srgb, var(--lav) 14%, var(--paper));
+
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --gutter: clamp(16px, 5vw, 56px);
+    --max: 1120px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 17px/1.6 var(--body);
+    /* faint board grid */
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: 50% 0;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--plum); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+  em.hl, .layer-head p em { font-style: normal; background: linear-gradient(transparent 52%, var(--mint) 52%, var(--mint) 92%, transparent 92%); padding: 0 .08em; }
+
+  /* hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 72px); align-items: center; padding: clamp(56px, 9vw, 120px) 0 40px; }
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variation-settings: "wdth" 75, "opsz" 96;
+    font-size: clamp(56px, 9vw, 116px);
+    line-height: .86;
+    letter-spacing: -.02em;
+    margin: 0 0 28px;
+  }
+  h1 span { display: block; color: var(--plum); }
+  .lede { font-size: clamp(18px, 2vw, 21px); max-width: 34ch; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0; font-size: clamp(14px, 3.9vw, 17px); }
+  .sub span { display: block; white-space: nowrap; }
+
+  /* hero chip illustration */
+  .ic { margin: 0 auto; width: 100%; max-width: 440px; }
+  .ic svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  /* brain waves: a pure graphic between hero and content */
+  .waves { position: relative; height: clamp(120px, 14vw, 180px); margin: 0 calc(var(--gutter) * -1) clamp(48px, 7vw, 88px); overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .waves svg { position: absolute; inset: 0; width: 200%; height: 100%; animation: sweep 48s linear infinite; }
+  .waves path { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  @keyframes sweep { to { transform: translateX(-50%); } }
+
+  /* sections */
+  section.layer { padding: 64px 0; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+  .layer-head { display: grid; grid-template-columns: 192px 1fr; gap: 48px; margin-bottom: 40px; align-items: baseline; }
+  .layer-head h2 { font: 700 13px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--plum); margin: 0; }
+  .layer-head p { margin: 0; max-width: 30ch; font-family: var(--display); font-weight: 600; font-variation-settings: "wdth" 85; font-size: clamp(24px, 3vw, 32px); line-height: 1.15; }
+
+  /* experience */
+  .jobs { list-style: none; margin: 0; padding: 0; }
+  .job { display: grid; grid-template-columns: 384px 1fr; gap: 48px; padding: 26px 0; border-top: 1px dashed var(--line); }
+  .job:first-child { border-top: 0; padding-top: 0; }
+  .when { font: 400 13px/1.6 var(--mono); color: var(--muted); }
+  #work .layer-head { grid-template-columns: 384px 1fr; }
+  /* full photo, uncropped: 8 cells wide, height follows the photo */
+  .job-pic { margin: 16px 0 0; border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+  .job-pic img { display: block; width: 100%; height: auto; }
+  .job h3 { font-family: var(--display); font-weight: 700; font-variation-settings: "wdth" 85; font-size: 26px; line-height: 1.1; margin: 0 0 4px; }
+  .job .role { margin: 0 0 10px; color: var(--plum); }
+  .job .blurb { margin: 0; max-width: 62ch; }
+
+  /* features */
+  .feature { display: grid; margin-bottom: 96px; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); gap: 48px; align-items: center; }
+  .feature:last-child { margin-bottom: 0; }
+  .feature.flip { grid-template-columns: minmax(0, 9fr) minmax(0, 11fr); }
+  .feature.flip > :first-child { order: 2; }
+  /* frames are drawn with box-shadow so they add no width and the edges stay on grid lines */
+  .shot { margin: 0; border-radius: 4px; overflow: hidden; background: var(--paper); box-shadow: 0 0 0 1px var(--line); }
+  .shot img, .shot video { display: block; width: 100%; height: auto; aspect-ratio: 11 / 7; object-fit: cover; }
+  .shot.pixel img { image-rendering: pixelated; }
+  .shot.demo { background: none; box-shadow: none; border-radius: 0; }
+  .shot.demo iframe { display: block; width: 100%; aspect-ratio: 11 / 7; border: 0; }
+  /* a video with its still underneath: 11x7 cells, 1-cell gap, 11x5 cells */
+  .media { display: grid; gap: 48px; min-width: 0; }
+  .shot.wide img { aspect-ratio: 11 / 5; }
+  .shot.left img { object-position: left center; }
+  .shot.contain { background: var(--ink); }
+  .shot.contain img { object-fit: contain; }
+  .feature h3 { font-family: var(--display); font-weight: 700; font-variation-settings: "wdth" 85; font-size: clamp(30px, 4vw, 44px); line-height: 1; margin: 0 0 12px; letter-spacing: -.01em; }
+  .feature p { margin: 0 0 14px; }
+  .feature p a { color: var(--plum); }
+  .go { font: 600 14px/1 var(--mono); color: var(--plum); text-decoration: none; }
+  .go + .go { margin-left: 24px; }
+  .keys-hint { font: 400 13px/1.5 var(--mono); color: var(--muted); }
+  .go:hover { text-decoration: underline; text-decoration-color: var(--lav); text-underline-offset: 4px; }
+
+  /* off the clock */
+  .note { margin: -16px 0 28px; max-width: 60ch; color: var(--muted); }
+  /* items share one height: each grows in proportion to its aspect ratio */
+  .album { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 6fr) minmax(0, 6fr); column-gap: 48px; align-items: start; }
+  .album figure { margin: 0; min-width: 0; }
+  .album img, .album video { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+  .album figcaption { padding-top: 10px; font: 400 12px/1.5 var(--mono); color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line); padding: 64px 0 72px; display: grid; grid-template-columns: 1fr 240px; gap: 48px; align-items: center; }
+  footer h2 { font-family: var(--display); font-weight: 800; font-variation-settings: "wdth" 75; font-size: clamp(40px, 7vw, 72px); line-height: .95; margin: 0 0 20px; }
+  footer p { color: var(--muted); max-width: 50ch; margin: 0 0 24px; }
+  footer nav { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { font: 600 14px/1 var(--mono); text-decoration: none; padding: 14px 18px; border: 1.5px solid var(--ink); border-radius: 4px; color: var(--ink); background: var(--paper); }
+  .btn.solid { background: var(--ink); color: var(--mint); }
+  .btn:hover { background: var(--mint); color: var(--ink); }
+  .me-photo { margin: 0; border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--ink); }
+  .me-photo img { display: block; width: 100%; height: auto; aspect-ratio: 5 / 6; object-fit: cover; object-position: 50% 60%; }
+
+  @media (max-width: 860px) {
+    .hero, .feature, .feature.flip { grid-template-columns: 1fr; }
+    .feature.flip > :first-child { order: 0; }
+    .layer-head, .job { grid-template-columns: 1fr; gap: 8px; }
+    footer { grid-template-columns: 1fr; }
+    .job-pic { max-width: 384px; }
+    #work .layer-head { grid-template-columns: 1fr; }
+    .album { grid-template-columns: 1fr; row-gap: 24px; }
+    .album figure:has(img) { --ar: 4 / 3 !important; }
+    .album figure:has(video) { --ar: 1 !important; }
+    .me-photo { max-width: 200px; order: -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .waves svg { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
 </head>
-<!-- The information between the BODY and /BODY tags is displayed.-->
 <body>
-<h1>Enter the main heading, usually the same as the title.</h1>
-<p>Be <b>bold</b> in stating your key points. Put them in a list: </p>
-<ul>
-<li>The first item in your list</li>
-<li>The second item; <i>italicize</i> key words</li>
-</ul>
-<p>Improve your image by including an image. </p>
-<p><img src="http://www.mygifs.com/CoverImage.gif" alt="A Great HTML Resource"></p>
-<p>Add a link to your favorite <a href="https://www.dummies.com/">Web site</a>.
-Break up your page with a horizontal rule or two. </p>
-<hr>
-<p>Finally, link to <a href="page2.html">another page</a> in your own Web site.</p>
-<!-- And add a copyright notice.-->
-<p>&#169; Wiley Publishing, 2011</p>
+<div class="wrap">
+
+  <section class="hero">
+    <div>
+      <h1>Emmanuel <span>Roy</span></h1>
+      <p class="lede">I like understanding complex software and hardware systems.</p>
+      <p class="sub"><span>Incoming Implant Software Engineer @ Neuralink</span><span>UT Austin ECE ’27</span></p>
+    </div>
+
+    <figure class="ic" aria-hidden="true"><svg id="ic" viewBox="0 0 400 400"></svg></figure>
+  </section>
+
+  <div class="waves" aria-hidden="true"></div>
+
+  <section class="layer" id="work" aria-labelledby="h-work">
+    <div class="layer-head">
+      <h2 id="h-work">Experience</h2>
+      <p>Upcoming CPUs, flight software, and <em>brain-computer interfaces</em>.</p>
+    </div>
+    <ol class="jobs">
+      <li class="job">
+        <div class="when">Jan – Aug 2026<figure class="job-pic"><img src="assets/amd.jpg" alt="Emmanuel with two colleagues in front of an AMD sign" loading="lazy" width="795" height="580"></figure></div>
+        <div>
+          <h3>AMD</h3>
+          <p class="role">SoC Virtual Model Development Co-op</p>
+          <p class="blurb">Worked on x86, RISC-V, AVX10, and the instructions used for LLM inference in SimNow, the simulator AMD uses to test chips before they exist.</p>
+        </div>
+      </li>
+      <li class="job">
+        <div class="when">May – Aug 2025<figure class="job-pic"><img src="assets/lockheed.jpg" alt="Emmanuel in a Lockheed Martin shirt in front of a jet on display" loading="lazy" width="924" height="841"></figure></div>
+        <div>
+          <h3>Lockheed Martin Aeronautics</h3>
+          <p class="role">Embedded Software Engineering Intern</p>
+          <p class="blurb">Wrote software for the F-35's fire control systems. I can't say much more than that.</p>
+        </div>
+      </li>
+      <li class="job">
+        <div class="when">Nov 2024 – May 2025<br>Aug 2026 – now<figure class="job-pic"><img src="assets/eyw.jpg" alt="Emmanuel and two others holding up UT Austin electrical and computer engineering shirts" loading="lazy" width="1000" height="483"></figure></div>
+        <div>
+          <h3>UT Austin</h3>
+          <p class="role">Teaching Assistant</p>
+          <p class="blurb">Mentoring students and grading in ES 301, an engineering design course.</p>
+        </div>
+      </li>
+      <li class="job">
+        <div class="when">May 2021 – Aug 2023<figure class="job-pic"><img src="assets/mixer-lab-eeg.jpg" alt="Emmanuel wearing a multi-electrode EEG headset in the lab" loading="lazy" width="806" height="598"></figure></div>
+        <div>
+          <h3>MIXER Lab, University of North Texas</h3>
+          <p class="role">Undergraduate Research Assistant</p>
+          <p class="blurb">Built data processing pipelines for millions of lines of Emotiv EEG data from 25+ patients.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="layer" id="projects" aria-labelledby="h-projects">
+    <div class="layer-head">
+      <h2 id="h-projects">Projects</h2>
+      <p>I build things to find out <em>how they work</em>: a CPU, a console, a keyboard.</p>
+    </div>
+
+    <article class="feature">
+      <figure class="shot left"><video src="assets/video/doomv-ubuntu.mp4" poster="assets/video/doomv-ubuntu.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Ubuntu booting to a desktop on DoomV, sped up, with the register file and trace log beside it"></video></figure>
+      <div>
+        <h3>DoomV</h3>
+        <p>A RISC-V CPU simulator in C++ that boots Ubuntu, runs DOOM, and passes all 663 official architecture tests.</p>
+        <a class="go" href="https://github.com/Emmanuel-Roy/DoomV">View on GitHub →</a>
+      </div>
+    </article>
+
+    <article class="feature flip">
+      <figure class="shot demo"><iframe src="emoo-boy/index.html?embed" title="Emoo-Boy, playable in the page" loading="lazy" allow="autoplay"></iframe></figure>
+      <div>
+        <h3>Emoo-Boy</h3>
+        <p>A Game Boy emulator I wrote in C, running live right there. Load a ROM you own and play.</p>
+        <p><span class="keys-hint">Arrows · Z / X for A / B · A / S for Start / Select</span></p>
+        <a class="go" href="https://github.com/Emmanuel-Roy/Emoo-Boy">View on GitHub →</a>
+      </div>
+    </article>
+
+    <article class="feature">
+      <div class="media">
+        <figure class="shot"><video src="assets/video/ounce.mp4" poster="assets/video/ounce.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Ounce running: four Switch Pro Controllers active on screen, driven from a keyboard and a PS5 controller"></video></figure>
+        <figure class="shot wide"><img src="assets/ounce-pcb.png" alt="The Ounce PCB: four Raspberry Pi Picos arranged around a Pico 2 W" loading="lazy" width="1568" height="704"></figure>
+      </div>
+      <div>
+        <h3>Ounce</h3>
+        <p>Play a Nintendo Switch from anywhere with any keyboard or controller, using five Raspberry Pi Picos talking over SPI.</p>
+        <a class="go" href="https://github.com/Emmanuel-Roy/Ounce">View on GitHub →</a>
+      </div>
+    </article>
+
+    <article class="feature flip">
+      <div class="media">
+        <figure class="shot"><video src="assets/video/emu-board.mp4" poster="assets/video/emu-board.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Emu-Board being typed on, then flipped over to show its engraved base plate" style="object-position: center 55%"></video></figure>
+        <figure class="shot wide"><img src="assets/emu-board.jpg" alt="Emu-Board: a 77-key keyboard with green keycaps in a laser-cut case, with a Raspberry Pi Pico in the corner" loading="lazy" width="3853" height="1718"></figure>
+      </div>
+      <div>
+        <h3>Emu-Board</h3>
+        <p>A 77-key keyboard I designed from scratch: KiCad PCB, laser-cut case, and KMK firmware on a Raspberry Pi Pico.</p>
+        <a class="go" href="https://github.com/Emmanuel-Roy/Emu-Board">View on GitHub →</a>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="layer" id="fun" aria-labelledby="h-fun">
+    <div class="layer-head">
+      <h2 id="h-fun">Outside work</h2>
+      <p>My life <em>off the résumé</em>.</p>
+    </div>
+    <div class="album">
+      <figure style="--ar: 7 / 6"><img src="assets/fun/osaka-castle.jpg" alt="Emmanuel standing in front of Osaka Castle's stone walls and white turrets" loading="lazy" width="1424" height="1068"><figcaption>Osaka Castle, Japan.</figcaption></figure>
+      <figure style="--ar: 1"><img src="assets/fun/shelf.jpg" alt="A shelf of plushies, CDs and collectibles" loading="lazy" width="1424" height="1068"><figcaption>Assortment of plushies, CDs, and collectibles I own.</figcaption></figure>
+      <figure style="--ar: 1"><video src="assets/video/bench.mp4" poster="assets/video/bench.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Emmanuel bench pressing"></video><figcaption>Bench day: 150 KG.</figcaption></figure>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <h2>Ask me about any of it.</h2>
+      <p>I'm always happy to talk about this stuff, technical or not. Send me an email or a message on LinkedIn.</p>
+      <nav aria-label="Contact">
+        <a class="btn solid" href="mailto:royemmanuel39@gmail.com">Email me</a>
+        <a class="btn" href="https://www.linkedin.com/in/e--roy/">LinkedIn</a>
+        <a class="btn" href="https://github.com/Emmanuel-Roy">GitHub</a>
+      </nav>
+    </div>
+    <figure class="me-photo"><img src="assets/portrait.jpg" alt="Emmanuel smiling in front of a bush of pink azaleas" loading="lazy" width="1424" height="1068"></figure>
+  </footer>
+
+</div>
+
+<script>
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('video[autoplay]').forEach(function (v) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; });
+  }
+  // Decorative brain waves. Each layer is one seamless period drawn twice,
+  // so the CSS sweep (translateX -50%) loops without a seam.
+  // Hero chip: a package with pins on four sides, traces fanning out to vias,
+  // and mint pulses running inward along a few of them.
+  function drawChip() {
+    var svg = document.getElementById('ic');
+    if (!svg) return;
+    var C = { ink: '#190B28', plum: '#5B2E48', lav: '#AE96BC', mint: '#D0FFC3' };
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var out = '', pins = 8, step = 13, edge = 128;
+    var side = '';
+    for (var i = 0; i < pins; i++) {
+      var x = 200 - step * (pins - 1) / 2 + i * step, off = Math.abs(i - (pins - 1) / 2);
+      // fan-out: every trace bends at the same height, runs a parallel 45-degree
+      // diagonal to a 22-unit via pitch, then straight out to one row of vias
+      var tx = 200 + (i - (pins - 1) / 2) * 22, bend = 112, end = 40;
+      var d = 'M' + x + ' ' + edge + 'L' + x + ' ' + bend + 'L' + tx + ' ' + (bend - Math.abs(tx - x)) + 'L' + tx + ' ' + end;
+      side += '<path d="' + d + '" fill="none" stroke="' + C.lav + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      side += '<circle cx="' + tx + '" cy="' + end + '" r="4.5" fill="#fff" stroke="' + C.plum + '" stroke-width="2"/>';
+      side += '<rect x="' + (x - 3) + '" y="' + (edge) + '" width="6" height="14" rx="1" fill="' + C.lav + '"/>';
+      if (!reduce && (i === 1 || i === 4 || i === 6)) {
+        var rev = 'M' + tx + ' ' + end + 'L' + tx + ' ' + (bend - Math.abs(tx - x)) + 'L' + x + ' ' + bend + 'L' + x + ' ' + edge;
+        side += '<circle r="3.2" fill="' + C.mint + '" stroke="' + C.plum + '" stroke-width="1"><animateMotion dur="' + (2.6 + i * .35) + 's" begin="' + (i * .4) + 's" repeatCount="indefinite" path="' + rev + '"/></circle>';
+      }
+    }
+    [0, 90, 180, 270].forEach(function (r) { out += '<g transform="rotate(' + r + ' 200 200)">' + side + '</g>'; });
+    // package
+    out += '<rect x="142" y="142" width="116" height="116" rx="10" fill="' + C.ink + '"/>';
+    // die with a faint cell grid
+    out += '<rect x="166" y="166" width="68" height="68" rx="4" fill="' + C.mint + '"/>';
+    for (var g = 1; g < 6; g++) {
+      var v = 166 + g * 68 / 6;
+      out += '<line x1="' + v + '" y1="168" x2="' + v + '" y2="232" stroke="' + C.plum + '" stroke-opacity=".22"/>';
+      out += '<line x1="168" y1="' + v + '" x2="232" y2="' + v + '" stroke="' + C.plum + '" stroke-opacity=".22"/>';
+    }
+    out += '<rect x="188" y="188" width="24" height="24" rx="3" fill="' + C.plum + '"/>';
+    out += '<circle cx="154" cy="154" r="3.5" fill="' + C.mint + '"/>';
+    svg.innerHTML = out;
+  }
+
+  (function () {
+    var host = document.querySelector('.waves');
+    if (!host) return;
+    drawChip();
+    // A ribbon of smooth, low-frequency curves. Every component completes a whole
+    // number of cycles over W, so the doubled path loops seamlessly.
+    var W = 1000, N = 240, LINES = 14;
+    function mix(a, b, t) {
+      var pa = [1, 3, 5].map(function (i) { return parseInt(a.substr(i, 2), 16); });
+      var pb = [1, 3, 5].map(function (i) { return parseInt(b.substr(i, 2), 16); });
+      return 'rgb(' + pa.map(function (v, i) { return Math.round(v + (pb[i] - v) * t); }).join(',') + ')';
+    }
+    function curve(f) {
+      var d = '';
+      for (var k = 0; k < 2; k++) for (var i = 0; i <= N; i++) {
+        var x = i / N;
+        d += (d ? 'L' : 'M') + (k * W + x * W).toFixed(1) + ' ' + f(x).toFixed(2);
+      }
+      return d;
+    }
+    var TAU = Math.PI * 2, out = '';
+    // soft mint band underneath
+    out += '<path d="' + curve(function (x) { return 50 + 16 * Math.sin(TAU * 2 * x + .6) + 6 * Math.sin(TAU * 3 * x + 2.1); }) +
+           '" stroke="#D0FFC3" stroke-width="26" opacity=".7"/>';
+    for (var l = 0; l < LINES; l++) {
+      var t = l / (LINES - 1), spread = (t - .5);
+      out += '<path d="' + curve(function (x) {
+        return 50 + 22 * Math.sin(TAU * 2 * x + spread * 1.1) +
+               9 * Math.sin(TAU * 3 * x + 1.7 + spread * 2.4) +
+               spread * 26 * Math.sin(TAU * 1 * x + .4);
+      }) + '" stroke="' + mix('#AE96BC', '#5B2E48', t) + '" stroke-width="1.25" opacity="' + (.45 + .5 * (1 - Math.abs(spread) * 2)).toFixed(2) + '"/>';
+    }
+    host.innerHTML = '<svg viewBox="0 0 ' + 2 * W + ' 100" preserveAspectRatio="none">' + out + '</svg>';
+  })();
+</script>
 </body>
 </html>

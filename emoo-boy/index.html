@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emoo-Boy</title>
+<meta name="description" content="Play Emoo-Boy, Emmanuel Roy's Game Boy emulator written in C, in your browser. Load your own ROM; it never leaves your computer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FFFFFF; --ink: #190B28; --plum: #5B2E48; --lav: #AE96BC; --mint: #D0FFC3;
+    --muted: color-mix(in srgb, var(--ink) 70%, var(--paper));
+    --line: color-mix(in srgb, var(--lav) 55%, var(--paper));
+    --grid: color-mix(in srgb, var(--lav) 14%, var(--paper));
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --gutter: clamp(16px, 5vw, 56px);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 var(--body);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 48px 48px; background-position: -1px -1px;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--plum); outline-offset: 3px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--gutter) 72px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 28px 0; }
+  .mark { font: 600 13px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--plum); text-decoration: none; }
+  .back { font: 400 14px/1 var(--mono); color: var(--muted); text-decoration: none; }
+  .back:hover { color: var(--ink); }
+
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: clamp(32px, 5vw, 64px); align-items: start; padding-top: clamp(16px, 4vw, 48px); }
+  h1 { font-family: var(--display); font-weight: 800; font-variation-settings: "wdth" 75, "opsz" 96; font-size: clamp(48px, 7vw, 88px); line-height: .9; letter-spacing: -.02em; margin: 0 0 16px; }
+  .lede { margin: 0 0 24px; max-width: 40ch; }
+
+  /* the screen: dark bezel, pixel-crisp canvas */
+  .bezel { max-width: 460px; }
+  /* sized by fitScreen() to a whole-number multiple of 160x144 physical pixels */
+  .screen { position: relative; aspect-ratio: 10 / 9; margin: 0; background: #0f0718; border-radius: 4px; overflow: hidden; }
+  #canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; outline: none; }
+  .empty { position: absolute; inset: 0; background: linear-gradient(rgba(25, 11, 40, .6), rgba(25, 11, 40, .6)), url(../assets/emoo-1.png) center bottom / cover; image-rendering: pixelated; }
+  .screen.on .empty { display: none; }
+
+  /* the load button lives next to the screen, not on it */
+  .loadbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+
+  .btn { display: inline-block; font: 600 14px/1 var(--mono); text-decoration: none; padding: 14px 18px; border: 1.5px solid var(--mint); border-radius: 4px; background: var(--mint); color: var(--ink); cursor: pointer; }
+  .btn:hover { background: var(--paper); }
+  .btn.ghost { background: transparent; border-color: var(--ink); }
+  .btn.ghost:hover { background: var(--mint); border-color: var(--mint); }
+  input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .status { min-height: 1.5em; margin: 10px 0 0; font: 400 13px/1.5 var(--mono); color: var(--muted); }
+  .status.err { color: var(--plum); }
+
+  .side h2 { font: 700 13px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--plum); margin: 0 0 14px; }
+  .keys { list-style: none; margin: 0 0 32px; padding: 0; display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; }
+  kbd { font: 600 13px/1 var(--mono); border: 1.5px solid var(--ink); border-bottom-width: 3px; border-radius: 4px; padding: 6px 9px; background: var(--paper); white-space: nowrap; }
+  .side p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+  .side a { color: var(--plum); }
+
+  @media (max-width: 860px) { .stage { grid-template-columns: 1fr; } }
+
+  /* ?embed: used inside the project card on the home page. Transparent, so the page's
+     grid shows through; the screen sits flush in the top-left with no frame around it. */
+  html.embed, html.embed body { height: 100%; overflow: hidden; background: transparent; background-image: none; }
+  html.embed .wrap { max-width: none; height: 100%; padding: 0; }
+  html.embed header, html.embed h1, html.embed .lede, html.embed .side { display: none; }
+  html.embed .stage { display: block; height: 100%; padding: 0; }
+  html.embed .stage > div { height: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0; align-items: start; }
+  html.embed .bezel { padding: 0; max-width: none; }
+  html.embed .screen { margin: 0; border-radius: 0; }
+  /* the buttons keep their dark panel; fitScreen() matches its height to the screen */
+  html.embed .controls { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 12px; background: var(--ink); border-radius: 0 4px 4px 0; color: var(--lav); }
+  html.embed .btn.ghost { color: var(--mint); border-color: var(--mint); }
+  html.embed .btn.ghost:hover { color: var(--ink); }
+  html.embed .loadbar { flex-direction: column; align-items: stretch; gap: 8px; margin: 0; }
+  html.embed .btn { padding: 10px 8px; font-size: 12px; text-align: center; white-space: normal; }
+  html.embed .status { font-size: 12px; }
+  html.embed .status:empty { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="mark" href="../">Emmanuel Roy</a>
+    <a class="back" href="../#projects">← Back to projects</a>
+  </header>
+
+  <div class="stage">
+    <div>
+      <h1>Emoo-Boy</h1>
+      <p class="lede">My Game Boy emulator, written in C and compiled to WebAssembly so it runs right here.</p>
+
+      <div class="bezel">
+        <div class="screen" id="screen">
+          <canvas id="canvas" tabindex="0" aria-label="Game Boy screen" oncontextmenu="event.preventDefault()"></canvas>
+          <div class="empty"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="loadbar">
+          <label class="btn" for="rom" id="loadBtn">Load a ROM</label>
+        </div>
+        <input type="file" id="rom" accept=".gb,.gbc,.bin">
+        <p class="status" id="status" role="status"></p>
+      </div>
+    </div>
+
+    <aside class="side">
+      <h2>Controls</h2>
+      <ul class="keys">
+        <li><kbd>↑ ↓ ← →</kbd></li><li>D-pad</li>
+        <li><kbd>Z</kbd></li><li>A</li>
+        <li><kbd>X</kbd></li><li>B</li>
+        <li><kbd>A</kbd></li><li>Start</li>
+        <li><kbd>S</kbd></li><li>Select</li>
+      </ul>
+      <h2>About</h2>
+      <p>Your ROM is read in your browser and never uploaded. For games that save, use Download save to keep your progress.</p>
+      <p>Original Game Boy games only, and it needs a keyboard. Use Change ROM to switch games.</p>
+      <p><a href="https://github.com/Emmanuel-Roy/Emoo-Boy">Source on GitHub</a></p>
+    </aside>
+  </div>
+</div>
+
+<script>
+  if (new URLSearchParams(location.search).has('embed')) document.documentElement.classList.add('embed');
+  var statusEl = document.getElementById('status');
+  var screenEl = document.getElementById('screen');
+  var canvas = document.getElementById('canvas');
+  var started = false;
+
+  // Integer scaling: each Game Boy pixel becomes exactly k x k physical pixels.
+  // Measure in physical pixels so it stays exact at 125% / 150% display scaling.
+  var realDpr = window.devicePixelRatio || 1;
+  var isEmbed = document.documentElement.classList.contains('embed');
+  function fitScreen() {
+    var aw, ah;
+    if (isEmbed) {
+      aw = window.innerWidth - 150; ah = window.innerHeight; // leave 150px for the button panel
+    } else {
+      var b = document.querySelector('.bezel'), cs = getComputedStyle(b);
+      aw = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      ah = window.innerHeight * 0.75;
+    }
+    var k = Math.max(1, Math.floor(Math.min(aw * realDpr / 160, ah * realDpr / 144)));
+    screenEl.style.width = (k * 160 / realDpr) + 'px';
+    screenEl.style.height = (k * 144 / realDpr) + 'px';
+    if (isEmbed) document.querySelector('.controls').style.height = (k * 144 / realDpr) + 'px';
+  }
+  fitScreen();
+  window.addEventListener('resize', fitScreen);
+
+  function say(msg, err) { statusEl.textContent = msg; statusEl.className = 'status' + (err ? ' err' : ''); }
+
+  // Load the emulator only when someone picks a ROM, then hand it the bytes.
+  var ready = null;
+  function loadRuntime() {
+    if (ready) return ready;
+    ready = new Promise(function (resolve, reject) {
+      // SDL sizes its drawing surface by devicePixelRatio; pin it to 1 so the surface is
+      // exactly 160x144 and the browser does all the (integer) upscaling.
+      window.devicePixelRatio = 1;
+      window.Module = { canvas: canvas, onRuntimeInitialized: resolve, print: function () {}, printErr: function () {} };
+      var s = document.createElement('script');
+      s.src = 'emoo.js';
+      s.onerror = function () { reject(new Error('load')); };
+      document.body.appendChild(s);
+    });
+    return ready;
+  }
+
+  function boot(bytes, name) {
+    if (started) return;
+    if (bytes.length < 0x150) { say('That file is too small to be a Game Boy ROM.', true); return; }
+    loadRuntime().then(function () {
+      Module.FS.writeFile('/rom.gb', bytes);
+      var rc = Module.ccall('emoo_start', 'number', ['string'], ['/rom.gb']);
+      if (rc !== 0) { say("Couldn't start that ROM.", true); return; }
+      started = true;
+      screenEl.classList.add('on');
+      var lb = document.getElementById('loadBtn');
+      var swap = document.createElement('button');
+      swap.className = 'btn'; swap.type = 'button'; swap.textContent = 'Change ROM';
+      swap.addEventListener('click', function () { location.reload(); });
+      lb.replaceWith(swap);
+      // Battery-backed cartridges (header byte 0x149 = 2..5) can download their save.
+      if (bytes[0x149] >= 2 && bytes[0x149] <= 5) {
+        var dl = document.createElement('button');
+        dl.className = 'btn ghost'; dl.type = 'button'; dl.textContent = 'Download save';
+        dl.addEventListener('click', function () {
+          if (!Module.ccall('emoo_save', 'number', [], [])) return;
+          var data = Module.FS.readFile('/save.sav');
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([data], { type: 'application/octet-stream' }));
+          a.download = name.replace(/\.[^.]+$/, '') + '.sav';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+          canvas.focus();
+        });
+        swap.after(dl);
+      }
+      canvas.focus();
+      say('');
+    }, function () { say("Couldn't load the emulator. Check your connection and reload.", true); });
+  }
+
+  document.getElementById('rom').addEventListener('change', function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    f.arrayBuffer().then(function (buf) { boot(new Uint8Array(buf), f.name); });
+  });
+  canvas.addEventListener('click', function () { canvas.focus(); });
+
+  // Dev hook for local testing: ?rom=path/to/file.gb (same-origin only).
+  var q = new URLSearchParams(location.search).get('rom');
+  if (q && !/^[a-z]+:/i.test(q)) fetch(q).then(function (r) { return r.arrayBuffer(); }).then(function (b) { boot(new Uint8Array(b), q.split('/').pop()); });
+</script>
+</body>
+</html>
